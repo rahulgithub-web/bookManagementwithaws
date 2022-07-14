@@ -3,6 +3,8 @@ const userModel = require("../models/userModel");
 const validation = require("../validator/validator");
 const reviewModel = require("../models/reviewModel");
 const mongoose = require("mongoose");
+// const aws = require("aws-sdk");
+const {uploadFile} = require('../controllers/awsUpload')
 
 let { isEmpty, isValidObjectId, isValidISBN, isValidExcerpt, isValidName, isValidDate } =
   validation;
@@ -11,7 +13,7 @@ let { isEmpty, isValidObjectId, isValidISBN, isValidExcerpt, isValidName, isVali
 const createBook = async function (req, res) {
   try {
     const data = req.body;
-
+    const files = req.files;
     if (Object.keys(data).length == 0) {
       return res
         .status(400)
@@ -85,12 +87,21 @@ const createBook = async function (req, res) {
     if(!isValidDate(releasedAt)) {
       return res.status(400).send({ status: false, msg: "Please provide a valid date in 'YYYY-MM-DD' format" });
     }
+    if(files && files.length > 0) {
+ 
+    let uploadFileURL = await uploadFile(files[0]);
+    console.log(uploadFileURL);
+    data.bookCover = uploadFileURL
+    } else {
+      return res.status(400).send({ status: false, msg: "No file found"});
+    }
+
     let savedData = await bookModel.create(data);
 
     return res.status(201).send({
       status: true,
       msg: "Book Model has been created successfully",
-      data: savedData,
+      data: savedData
     });
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });

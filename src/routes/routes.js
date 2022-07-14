@@ -19,7 +19,7 @@ router.post("/register", createUser);
 router.post("/login", userLogin);
 
 // ==========> Create Books Api <=============
-router.post("/books", authenticate, authorise ,createBook);
+router.post("/books", authenticate ,createBook);
 
 // ==========> Get Books Api <============
 router.get("/books", authenticate ,getBooks);
